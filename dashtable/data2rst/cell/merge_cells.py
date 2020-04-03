@@ -30,10 +30,10 @@ def merge_cells(cell1, cell2, direction):
         cell1.column_count += cell2.column_count
 
     elif direction == "TOP":
-        if cell1_lines[0].count('+') > cell2_lines[-1].count('+'):
-            cell2_lines.pop(-1)
-        else:
-            cell1_lines.pop(0)
+        cell1_border = cell1_lines.pop(0)
+        cell2_border = cell2_lines.pop(-1)
+        cell2_lines.append(_merge_border_rows(cell1_border, cell2_border))
+
         cell2_lines.extend(cell1_lines)
         cell1.text = "\n".join(cell2_lines)
         cell1.row_count += cell2.row_count
@@ -41,11 +41,13 @@ def merge_cells(cell1, cell2, direction):
         cell1.column = cell2.column
 
     elif direction == "BOTTOM":
-        if (cell1_lines[-1].count('+') > cell2_lines[0].count('+') or
-                cell1.is_header):
+        if cell1.is_header:
             cell2_lines.pop(0)
         else:
-            cell1_lines.pop(-1)
+            cell1_border = cell1_lines.pop(-1)
+            cell2_border = cell2_lines.pop(0)
+            cell1_lines.append(_merge_border_rows(cell1_border, cell2_border))
+
         cell1_lines.extend(cell2_lines)
         cell1.text = "\n".join(cell1_lines)
         cell1.row_count += cell2.row_count
@@ -58,4 +60,8 @@ def merge_cells(cell1, cell2, direction):
         cell1.row = cell2.row
         cell1.column = cell2.column
 
+def _merge_border_rows(row1, row2):
+        chars = ['+' if any(c == '+' for c in (c1, c2)) else '-'
+            for c1, c2 in zip(row1, row2)]
 
+        return ''.join(chars)
